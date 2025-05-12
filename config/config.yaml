@@ -5,7 +5,7 @@ artifacts_root: artifacts # everything from components will be saved inside arti
 
 data_ingestion: # data ingestion configuration ;basically path and url related to data ingestion
   root_dir: artifacts/data_ingestion # sub folders created to store info
-  source_URL: https://github.com/entbappy/Branching-tutorial/raw/master/summarizer-data.zip # where the data is dowloaded
+  source_URL: https://github.com/dystinktbeatz/Text-summarizer-project/raw/refs/heads/main/samsum_dataset_G.zip # where the data is dowloaded
   local_data_file: artifacts/data_ingestion/data.zip # Where the downloaded file is saved
   unzip_dir: artifacts/data_ingestion # this is where the unzipped file gets stored
 
