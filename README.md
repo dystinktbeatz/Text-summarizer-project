@@ -90,7 +90,7 @@ Email: krishnaik06@gmail.com
 
 	
 ## 3. Create ECR repo to store/save docker image
-    - Save the URI: 566373416292.dkr.ecr.us-east-1.amazonaws.com/text-s
+    - Save the URI: 851614451587.dkr.ecr.us-east-1.amazonaws.com/test-s
 
 	
 ## 4. Create EC2 machine (Ubuntu) 
@@ -111,7 +111,7 @@ Email: krishnaik06@gmail.com
 	sudo sh get-docker.sh
 
 	sudo usermod -aG docker ubuntu
-
+  
 	newgrp docker
 	
 # 6. Configure EC2 as self-hosted runner:
