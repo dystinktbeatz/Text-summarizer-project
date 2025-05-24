@@ -174,3 +174,17 @@ cython_debug/
 .pypirc
 
 artifacts/*
+# Ignore model weights and training artifacts
+*.safetensors
+*.bin
+*.arrow
+
+# Ignore extracted datasets
+research/extracted_data/samsum_dataset/
+research/pegasus-samsum*/
+research/tokenizer/
+
+# Ignore intermediate notebooks or cache
+.ipynb_checkpoints/
+__pycache__/
+artifacts/
