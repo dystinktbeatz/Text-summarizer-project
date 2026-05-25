@@ -1,131 +1,205 @@
-# End to end Text-Summarizer-Project
+# 📝 End-to-End Text Summarizer
 
-## Workflows
+An end-to-end NLP pipeline that generates abstractive summaries from long-form text using **Google's PEGASUS** model — packaged as a REST API and deployed to AWS via Docker and CI/CD.
 
-1. Update config.yaml
-2. Update params.yaml # is used when model trainer is used
-3. Update entity #  it defines the return type  pf a function
-4. Update the configuration manager in src config
-5. update the components
-6. update the pipeline
-7. update the main.py
-8. update the app.py
+---
 
+## 📌 Problem Statement
 
-# How to run?
-### STEPS:
+Reading long documents, articles, or transcripts is time-consuming. This project automates the process by generating concise, context-aware abstractive summaries — reducing reading time without losing critical information.
 
-Clone the repository
+---
+
+## ✅ Solution
+
+An end-to-end pipeline that:
+1. Accepts raw text input via a REST API
+2. Tokenizes and preprocesses the input using PEGASUS tokenizer
+3. Runs inference through `google/pegasus-cnn_dailymail` fine-tuned on the SAMSum dataset
+4. Returns a human-readable abstractive summary
+
+---
+
+## 🧠 Key Features
+
+- **Abstractive Summarization** — generates new sentences rather than extracting existing ones
+- **PEGASUS Model** — state-of-the-art transformer pre-trained specifically for summarization
+- **Modular Pipeline Architecture** — independently configurable stages (ingestion → transformation → training → evaluation → prediction)
+- **REST API** — served via FastAPI for easy integration
+- **Containerized** — fully Dockerized for consistent environments
+- **CI/CD Deployment** — automated deployment to AWS EC2 via GitHub Actions and ECR
+
+---
+
+## 🏗️ Architecture
+
+```
+Raw Text Input
+      ↓
+FastAPI Backend (app.py)
+      ↓
+Prediction Pipeline
+   ├── PEGASUS Tokenizer
+   ├── Model Inference (google/pegasus-cnn_dailymail)
+   └── Decoded Summary Output
+      ↓
+Summary Response
+```
+
+### Training Pipeline
+```
+Data Ingestion → Data Transformation → Model Trainer → Model Evaluation
+```
+
+---
+
+## 📦 Tech Stack
+
+| Layer              | Technology                                      |
+|--------------------|-------------------------------------------------|
+| Model              | `google/pegasus-cnn_dailymail` (HuggingFace)    |
+| Dataset            | SAMSum (dialogue summarization)                 |
+| Framework          | HuggingFace Transformers, PyTorch               |
+| API                | FastAPI                                         |
+| Containerization   | Docker                                          |
+| CI/CD              | GitHub Actions                                  |
+| Cloud              | AWS EC2 + ECR                                   |
+| Config Management  | YAML-based pipeline config                      |
+
+---
+
+## 📁 Project Structure
+
+```
+├── .github/
+│   └── workflows/           # GitHub Actions CI/CD pipeline
+├── config/
+│   └── config.yaml          # Pipeline stage configuration
+├── research/                # Exploratory notebooks (per pipeline stage)
+├── src/TextSummarizer/
+│   ├── components/          # Data ingestion, transformation, trainer, evaluator
+│   ├── pipeline/            # Stage runners + prediction pipeline
+│   ├── entity/              # Data classes / return types
+│   └── config/              # Config manager
+├── app.py                   # FastAPI app with /train and /predict routes
+├── main.py                  # Full training pipeline runner
+├── params.yaml              # Model hyperparameters
+├── Dockerfile               # Container definition
+├── setup.py                 # Package setup
+└── requirements.txt         # Dependencies
+```
+
+---
+
+## ⚙️ Setup & Installation
+
+### 1. Clone the Repository
 
 ```bash
-https://github.com/entbappy/End-to-end-Text-Summarization
+git clone https://github.com/dystinktbeatz/Text-summarizer-project.git
+cd Text-summarizer-project
 ```
-### STEP 01- Create a conda environment after opening the repository
+
+### 2. Create & Activate Environment
 
 ```bash
-conda create -n summary python=3.8 -y
+conda create -n textsummarizer python=3.8 -y
+conda activate textsummarizer
 ```
 
-```bash
-conda activate summary
-```
+### 3. Install Dependencies
 
-
-### STEP 02- install the requirements
 ```bash
 pip install -r requirements.txt
 ```
 
+### 4. Run the Full Training Pipeline
 
 ```bash
-# Finally run the following command
+python main.py
+```
+
+### 5. Start the API Server
+
+```bash
 python app.py
 ```
 
-Now,
+Open: `http://localhost:8080`
+
+- `GET  /train`   → triggers the full training pipeline
+- `POST /predict` → returns a summary for the given input text
+
+---
+
+## 🐳 Docker
+
 ```bash
-open up you local host and port
+docker build -t text-summarizer .
+docker run -p 8080:8080 text-summarizer
 ```
 
+---
 
-```bash
-Author: Krish Naik
-Data Scientist
-Email: krishnaik06@gmail.com
+## 🚀 AWS Deployment (EC2 + ECR via GitHub Actions)
+
+This project uses a fully automated CI/CD pipeline:
+
+1. **Push to main** triggers the GitHub Actions workflow
+2. Docker image is **built and pushed to AWS ECR**
+3. EC2 instance **pulls the latest image** and runs the container
+
+### Required GitHub Secrets
 
 ```
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_REGION
+AWS_ECR_LOGIN_URI
+ECR_REPOSITORY_NAME
+```
 
+### EC2 Setup (one-time)
 
+```bash
+sudo apt-get update -y && sudo apt-get upgrade -y
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker ubuntu
+newgrp docker
+```
 
-# AWS-CICD-Deployment-with-Github-Actions
+Configure EC2 as a self-hosted GitHub Actions runner:
+`Settings → Actions → Runners → New self-hosted runner`
 
-## 1. Login to AWS console.
+Then open port **8080** in your EC2 security group inbound rules.
 
-## 2. Create IAM user for deployment
+---
 
-	#with specific access
+## 🔁 Pipeline Stages
 
-	1. EC2 access : It is virtual machine
+| Stage               | Description                                              |
+|---------------------|----------------------------------------------------------|
+| Data Ingestion      | Downloads and stores the SAMSum dataset                  |
+| Data Transformation | Tokenizes dialogues using PEGASUS tokenizer              |
+| Model Trainer       | Fine-tunes `google/pegasus-cnn_dailymail` on SAMSum      |
+| Model Evaluation    | Computes ROUGE scores on the validation set              |
+| Prediction Pipeline | Loads saved model + tokenizer and runs inference         |
 
-	2. ECR: Elastic Container registry to save your docker image in aws
+---
 
+## 🎯 Future Improvements
 
-	#Description: About the deployment
+- Add ROUGE benchmark scores to README
+- Support multi-document summarization
+- Stream output for long-form documents
+- Build a frontend UI
+- Experiment with BART (`facebook/bart-large-cnn`) for comparison
 
-	1. Build docker image of the source code
+---
 
-	2. Push your docker image to ECR
+## 🧠 Author
 
-	3. Launch Your EC2 
-
-	4. Pull Your image from ECR in EC2
-
-	5. Lauch your docker image in EC2
-
-	#Policy:
-
-	1. AmazonEC2ContainerRegistryFullAccess
-
-	2. AmazonEC2FullAccess
-
-	
-## 3. Create ECR repo to store/save docker image
-    - Save the URI: 851614451587.dkr.ecr.us-east-1.amazonaws.com/test-s
-
-	
-## 4. Create EC2 machine (Ubuntu) 
-
-## 5. Open EC2 and Install docker in EC2 Machine:
-	
-	
-	#optinal
-
-	sudo apt-get update -y
-
-	sudo apt-get upgrade
-	
-	#required
-
-	curl -fsSL https://get.docker.com -o get-docker.sh
-
-	sudo sh get-docker.sh
-
-	sudo usermod -aG docker ubuntu
-  
-	newgrp docker
-	
-# 6. Configure EC2 as self-hosted runner:
-    setting>actions>runner>new self hosted runner> choose os> then run command one by one
-
-
-# 7. Setup github secrets:
-
-    AWS_ACCESS_KEY_ID=
-
-    AWS_SECRET_ACCESS_KEY=
-
-    AWS_REGION = us-east-1
-
-    AWS_ECR_LOGIN_URI = demo>>  566373416292.dkr.ecr.ap-south-1.amazonaws.com
-
-    ECR_REPOSITORY_NAME = simple-app
+**Gautham N Vijayan**
+Data Scientist | NLP & GenAI
+[LinkedIn](https://linkedin.com/in/your-profile) · [GitHub](https://github.com/dystinktbeatz)
